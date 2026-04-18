@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Crysis Style Clock Widget - Стильные часы в тематике Crysis">
+    <meta name="author" content="wulkan-Git">
+    <title>Crysis Clock Widget</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            overflow: hidden;
+        }
+
+        /* Основной контейнер часов */
+        .crysis-clock-wrapper {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            aspect-ratio: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .crysis-clock-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            max-width: 500px;
+            aspect-ratio: 1;
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 50%;
+            box-shadow: 
+                0 0 60px rgba(0, 255, 0, 0.4),
+                inset 0 0 60px rgba(0, 255, 0, 0.1),
+                0 0 100px rgba(0, 255, 0, 0.2);
+            border: 3px solid rgba(0, 255, 0, 0.6);
+            overflow: hidden;
+            animation: containerPulse 4s ease-in-out infinite;
+        }
+
+        @keyframes containerPulse {
+            0%, 100% { 
+                box-shadow: 
+                    0 0 60px rgba(0, 255, 0, 0.4),
+                    inset 0 0 60px rgba(0, 255, 0, 0.1);
+            }
+            50% { 
+                box-shadow: 
+                    0 0 80px rgba(0, 255, 0, 0.6),
+                    inset 0 0 80px rgba(0, 255, 0, 0.2);
+            }
+        }
+
+        /* Фоновое изображение Crysis */
+        .crysis-clock-bg {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-image: url('crysis.jpg');
+            background-size: cover;
+            background-position: center;
+            opacity: 0.5;
+            filter: grayscale(40%) contrast(1.3) brightness(0.8);
+        }
+
+        /* Затемнение по краям */
+        .crysis-vignette {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, transparent 40%, rgba(0,0,0,0.8) 100%);
+            z-index: 1;
+        }
+
+        /* Циферблат */
+        .crysis-clock-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2;
+        }
+
+        /* Часовые метки */
+        .crysis-hour-markers {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+        }
+
+        .crysis-marker {
+            position: absolute;
+            width: 3px;
+            height: 15px;
+            background: linear-gradient(180deg, #00ff00, #00aa00);
+            left: 50%;
+            transform-origin: center 250px;
+            box-shadow: 0 0 10px rgba(0, 255, 0, 0.8);
+        }
+
+        .crysis-marker.major {
+            width: 5px;
+            height: 20px;
+            background: linear-gradient(180deg, #00ff00, #00cc00);
+            box-shadow: 0 0 15px rgba(0, 255, 0, 1);
+        }
+
+        /* Стрелки */
+        .crysis-hands {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            z-index: 10;
+        }
+
+        .crysis-hand {
+            position: absolute;
+            bottom: 50%;
+            left: 50%;
+            transform-origin: bottom center;
+            border-radius: 5px;
+            box-shadow: 0 0 15px currentColor;
+        }
+
+        .crysis-hour {
+            width: 6px;
+            height: 80px;
+            background: linear-gradient(180deg, #00ff00, #00aa00);
+            margin-left: -3px;
+            color: #00ff00;
+            z-index: 3;
+        }
+
+        .crysis-minute {
+            width: 4px;
+            height: 110px;
+            background: linear-gradient(180deg, #00ff80, #00cc66);
+            margin-left: -2px;
+            color: #00ff80;
+            z-index: 2;
+        }
+
+        .crysis-second {
+            width: 2px;
+            height: 120px;
+            background: linear-gradient(180deg, #ffff00, #ffaa00);
+            margin-left: -1px;
+            color: #ffff00;
+            z-index: 4;
+            animation: secondPulse 1s ease-in-out infinite;
+        }
+
+        @keyframes secondPulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        /* Центр */
+        .crysis-center {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: radial-gradient(circle, #00ff00, #00aa00);
+            border-radius: 50%;
+            box-shadow: 0 0 20px rgba(0, 255, 0, 1);
+            z-index: 10;
+        }
+
+        /* Цифровое время и дата */
+        .crysis-digital {
+            position: absolute;
+            bottom: 28%;
+            left: 50%;
+            transform: translateX(-50%);
+            text-align: center;
+            width: 90%;
+            z-index: 20;
+        }
+
+        .crysis-day {
+            font-size: clamp(0.9rem, 3.5vw, 1.5rem);
+            color: #00ffff;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            margin-bottom: 8px;
+            text-shadow: 
+                0 0 10px rgba(0, 255, 255, 0.8),
+                0 0 20px rgba(0, 255, 255, 0.6);
+            font-weight: bold;
+            white-space: nowrap;
+        }
+
+        .crysis-time {
+            font-size: clamp(2rem, 7vw, 3.5rem);
+            font-weight: bold;
+            color: #00ff00;
+            text-shadow: 
+                0 0 10px rgba(0, 255, 0, 1),
+                0 0 20px rgba(0, 255, 0, 0.8),
+                0 0 30px rgba(0, 255, 0, 0.6);
+            letter-spacing: 5px;
+            font-family: 'Courier New', monospace;
+            line-height: 1.2;
+        }
+
+        .crysis-date {
+            font-size: clamp(0.75rem, 2.5vw, 1.1rem);
+            color: #ffaa00;
+            margin-top: 8px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-shadow: 0 0 10px rgba(255, 170, 0, 0.6);
+        }
+
+        /* Логотип CRYISIS */
+        .crysis-logo {
+            position: absolute;
+            bottom: 5%;
+            left: 50%;
+            transform: translateX(-50%);
+            text-align: center;
+            z-index: 20;
+            width: 100%;
+        }
+
+        .crysis-logo-text {
+            font-size: clamp(1.5rem, 6vw, 2.8rem);
+            font-weight: 900;
+            color: #00ff00;
+            letter-spacing: 8px;
+            text-shadow: 
+                0 0 10px rgba(0, 255, 0, 1),
+                0 0 20px rgba(0, 255, 0, 0.8),
+                0 0 40px rgba(0, 255, 0, 0.6);
+            font-family: 'Arial Black', sans-serif;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+
+        /* HUD элементы */
+        .crysis-hud {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 15;
+        }
+
+        .crysis-hud-line {
+            position: absolute;
+            background: rgba(0, 255, 0, 0.4);
+            box-shadow: 0 0 5px rgba(0, 255, 0, 0.6);
+        }
+
+        .crysis-hud-top {
+            width: 60px;
+            height: 3px;
+            top: 12%;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .crysis-hud-bottom {
+            width: 60px;
+            height: 3px;
+            bottom: 18%;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .crysis-hud-left {
+            width: 3px;
+            height: 60px;
+            left: 12%;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .crysis-hud-right {
+            width: 3px;
+            height: 60px;
+            right: 12%;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        /* Угловые маркеры */
+        .crysis-corner {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(0, 255, 0, 0.6);
+            box-shadow: 0 0 10px rgba(0, 255, 0, 0.4);
+        }
+
+        .crysis-corner-tl { top: 15%; left: 15%; border-right: none; border-bottom: none; }
+        .crysis-corner-tr { top: 15%; right: 15%; border-left: none; border-bottom: none; }
+        .crysis-corner-bl { bottom: 15%; left: 15%; border-right: none; border-top: none; }
+        .crysis-corner-br { bottom: 15%; right: 15%; border-left: none; border-top: none; }
+
+        /* Адаптивность */
+        @media (max-width: 600px) {
+            .crysis-clock-container {
+                max-width: 350px;
+            }
+            
+            .crysis-marker {
+                transform-origin: center 175px;
+            }
+            
+            .crysis-hour {
+                height: 60px;
+            }
+            
+            .crysis-minute {
+                height: 85px;
+            }
+            
+            .crysis-second {
+                height: 95px;
+            }
+        }
+
+        @media (max-width: 400px) {
+            .crysis-clock-container {
+                max-width: 280px;
+            }
+            
+            .crysis-marker {
+                transform-origin: center 140px;
+            }
+        }
+
+        /* Эффект свечения */
+        .crysis-glow-active {
+            animation: glowIntense 2s ease-in-out infinite;
+        }
+
+        @keyframes glowIntense {
+            0%, 100% { 
+                box-shadow: 
+                    0 0 60px rgba(0, 255, 0, 0.6),
+                    inset 0 0 60px rgba(0, 255, 0, 0.2);
+            }
+            50% { 
+                box-shadow: 
+                    0 0 100px rgba(0, 255, 0, 0.9),
+                    inset 0 0 100px rgba(0, 255, 0, 0.4);
+            }
+        }
+
+        /* Счетчик FPS (опционально) */
+        .crysis-fps {
+            position: absolute;
+            top: 10%;
+            right: 15%;
+            color: #00ff00;
+            font-family: 'Courier New', monospace;
+            font-size: 0.8rem;
+            opacity: 0.7;
+            z-index: 20;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="crysis-clock-wrapper">
+        <div class="crysis-clock-container" id="crysisClock">
+            <!-- Фоновое изображение -->
+            <div class="crysis-clock-bg"></div>
+            
+            <!-- Затемнение -->
+            <div class="crysis-vignette"></div>
+            
+            <!-- HUD элементы -->
+            <div class="crysis-hud">
+                <div class="crysis-hud-line crysis-hud-top"></div>
+                <div class="crysis-hud-line crysis-hud-bottom"></div>
+                <div class="crysis-hud-line crysis-hud-left"></div>
+                <div class="crysis-hud-line crysis-hud-right"></div>
+                <div class="crysis-corner crysis-corner-tl"></div>
+                <div class="crysis-corner crysis-corner-tr"></div>
+                <div class="crysis-corner crysis-corner-bl"></div>
+                <div class="crysis-corner crysis-corner-br"></div>
+            </div>
+            
+            <!-- Циферблат -->
+            <div class="crysis-clock-face">
+                <div class="crysis-hour-markers" id="hourMarkers"></div>
+                <div class="crysis-hands">
+                    <div class="crysis-hand crysis-hour" id="hourHand"></div>
+                    <div class="crysis-hand crysis-minute" id="minuteHand"></div>
+                    <div class="crysis-hand crysis-second" id="secondHand"></div>
+                </div>
+                <div class="crysis-center"></div>
+            </div>
+            
+            <!-- Цифровое время и дата -->
+            <div class="crysis-digital">
+                <div class="crysis-day" id="dayOfWeek">ЗАГРУЗКА...</div>
+                <div class="crysis-time" id="digitalTime">00:00:00</div>
+                <div class="crysis-date" id="digitalDate">...</div>
+            </div>
+            
+            <!-- Логотип CRYISIS -->
+            <div class="crysis-logo">
+                <div class="crysis-logo-text">CRYISIS</div>
+            </div>
+            
+            <!-- FPS счетчик (опционально) -->
+            <div class="crysis-fps" id="fpsCounter">60 FPS</div>
+        </div>
+    </div>
+
+    <script>
+        /**
+         * Crysis Clock Widget
+         * Version: 1.0.0
+         * Author: wulkan-Git
+         * License: MIT
+         */
+
+        // Создание часовых меток
+        function createHourMarkers() {
+            const markersContainer = document.getElementById('hourMarkers');
+            const markersCount = 60;
+            
+            for (let i = 0; i < markersCount; i++) {
+                const marker = document.createElement('div');
+                
+                if (i % 5 === 0) {
+                    marker.className = 'crysis-marker major';
+                } else {
+                    marker.className = 'crysis-marker';
+                    marker.style.opacity = '0.5';
+                    marker.style.height = '8px';
+                }
+                
+                const angle = (i * 6) - 90; // -90 чтобы начать с 12 часов
+                marker.style.transform = `rotate(${angle}deg)`;
+                
+                // Адаптивный радиус
+                const container = document.getElementById('crysisClock');
+                const radius = (container.offsetWidth / 2) - 20;
+                marker.style.transformOrigin = `center ${radius}px`;
+                
+                markersContainer.appendChild(marker);
+            }
+        }
+
+        // Обновление времени
+        let lastTime = performance.now();
+        let frameCount = 0;
+
+        function updateClock(currentTime) {
+            const now = new Date();
+            
+            const hours = now.getHours();
+            const minutes = now.getMinutes();
+            const seconds = now.getSeconds();
+            const milliseconds = now.getMilliseconds();
+            
+            // Плавное движение секундной стрелки
+            const secondsDegrees = ((seconds / 60) * 360) + ((milliseconds / 1000) * 6);
+            const minutesDegrees = ((minutes / 60) * 360) + ((seconds / 60) * 6);
+            const hoursDegrees = ((hours / 12) * 360) + ((minutes / 60) * 30);
+            
+            document.getElementById('secondHand').style.transform = `rotate(${secondsDegrees}deg)`;
+            document.getElementById('minuteHand').style.transform = `rotate(${minutesDegrees}deg)`;
+            document.getElementById('hourHand').style.transform = `rotate(${hoursDegrees}deg)`;
+            
+            // Цифровое время
+            const timeString = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+            document.getElementById('digitalTime').textContent = timeString;
+            
+            // День недели
+            const days = ['ВОСКРЕСЕНЬЕ', 'ПОНЕДЕЛЬНИК', 'ВТОРНИК', 'СРЕДА', 'ЧЕТВЕРГ', 'ПЯТНИЦА', 'СУББОТА'];
+            document.getElementById('dayOfWeek').textContent = days[now.getDay()];
+            
+            // Дата
+            const options = { year: 'numeric', month: 'long', day: 'numeric' };
+            document.getElementById('digitalDate').textContent = now.toLocaleDateString('ru-RU', options);
+            
+            // Счетчик FPS (опционально)
+            frameCount++;
+            if (currentTime - lastTime >= 1000) {
+                document.getElementById('fpsCounter').textContent = frameCount + ' FPS';
+                frameCount = 0;
+                lastTime = currentTime;
+            }
+            
+            requestAnimationFrame(updateClock);
+        }
+
+        // Адаптация меток под размер экрана
+        function adaptMarkers() {
+            const container = document.getElementById('crysisClock');
+            const size = container.offsetWidth;
+            const markers = document.querySelectorAll('.crysis-marker, .crysis-marker.major');
+            const radius = size / 2 - 20;
+            
+            markers.forEach((marker) => {
+                const currentTransform = marker.style.transform;
+                const angle = currentTransform.match(/rotate\(([-\d.]+)deg\)/);
+                if (angle) {
+                    marker.style.transformOrigin = `center ${radius}px`;
+                }
+            });
+        }
+
+        // Интерактивность - клик для усиления свечения
+        document.getElementById('crysisClock').addEventListener('click', function() {
+            this.classList.toggle('crysis-glow-active');
+        });
+
+        // Инициализация
+        document.addEventListener('DOMContentLoaded', function() {
+            createHourMarkers();
+            requestAnimationFrame(updateClock);
+            
+            // Адаптация при изменении размера окна
+            window.addEventListener('resize', function() {
+                adaptMarkers();
+            });
+            
+            // Первая адаптация
+            setTimeout(adaptMarkers, 100);
+        });
+
+        // Service Worker для PWA (опционально)
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('data:text/javascript,' + encodeURIComponent(`
+                self.addEventListener('fetch', function(event) {
+                    event.respondWith(fetch(event.request));
+                });
+            `)).catch(() => {
+                console.log('Service Worker registration skipped');
+            });
+        }
+    </script>
+
+</body>
+</html>
